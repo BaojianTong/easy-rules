@@ -34,8 +34,10 @@ import java.util.List;
 import org.jeasy.rules.annotation.Action;
 import org.jeasy.rules.annotation.Condition;
 import org.jeasy.rules.annotation.Fact;
+import org.jeasy.rules.annotation.Failed;
 import org.jeasy.rules.annotation.Priority;
 import org.jeasy.rules.annotation.Rule;
+import org.jeasy.rules.annotation.Success;
 import org.jeasy.rules.api.Facts;
 
 /**
@@ -48,7 +50,9 @@ class RuleDefinitionValidator {
     void validateRuleDefinition(final Object rule) {
         checkRuleClass(rule);
         checkConditionMethod(rule);
-        checkActionMethods(rule);
+//        checkActionMethods(rule);
+        checkSuccessMethods(rule);
+        checkFailedMethods(rule);
         checkPriorityMethod(rule);
     }
 
@@ -86,6 +90,30 @@ class RuleDefinitionValidator {
                 throw new IllegalArgumentException(format("Action method '%s' defined in rule '%s' must be public, must return void type and may have parameters annotated with @Fact (and/or exactly one parameter of type Facts or one of its sub-types).", actionMethod, rule.getClass().getName()));
             }
         }
+    }
+    private void checkSuccessMethods(final Object rule) {
+    	List<Method> actionMethods = getMethodsAnnotatedWith(Success.class, rule);
+    	if (actionMethods.isEmpty()) {
+    		throw new IllegalArgumentException(format("Rule '%s' must have at least one public method annotated with '%s'", rule.getClass().getName(), Success.class.getName()));
+    	}
+    	
+    	for (Method actionMethod : actionMethods) {
+    		if (!isActionMethodWellDefined(actionMethod)) {
+    			throw new IllegalArgumentException(format("Action method '%s' defined in rule '%s' must be public, must return void type and may have parameters annotated with @Fact (and/or exactly one parameter of type Facts or one of its sub-types).", actionMethod, rule.getClass().getName()));
+    		}
+    	}
+    }
+    private void checkFailedMethods(final Object rule) {
+    	List<Method> actionMethods = getMethodsAnnotatedWith(Failed.class, rule);
+    	if (actionMethods.isEmpty()) {
+    		throw new IllegalArgumentException(format("Rule '%s' must have at least one public method annotated with '%s'", rule.getClass().getName(), Failed.class.getName()));
+    	}
+    	
+    	for (Method actionMethod : actionMethods) {
+    		if (!isActionMethodWellDefined(actionMethod)) {
+    			throw new IllegalArgumentException(format("Action method '%s' defined in rule '%s' must be public, must return void type and may have parameters annotated with @Fact (and/or exactly one parameter of type Facts or one of its sub-types).", actionMethod, rule.getClass().getName()));
+    		}
+    	}
     }
 
     private void checkPriorityMethod(final Object rule) {

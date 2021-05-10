@@ -26,7 +26,9 @@ package org.jeasy.rules.core;
 import org.jeasy.rules.annotation.Action;
 import org.jeasy.rules.annotation.Condition;
 import org.jeasy.rules.annotation.Fact;
+import org.jeasy.rules.annotation.Failed;
 import org.jeasy.rules.annotation.Priority;
+import org.jeasy.rules.annotation.Success;
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rule;
 import org.slf4j.Logger;
@@ -107,6 +109,10 @@ public class RuleProxy implements InvocationHandler {
                 return evaluateMethod(args);
             case "execute":
                 return executeMethod(args);
+            case "success":
+            	return successMethod(args);
+            case "failed":
+            	return failedMethod(args);
             case "equals":
                 return equalsMethod(args);
             case "hashCode":
@@ -118,7 +124,24 @@ public class RuleProxy implements InvocationHandler {
         }
     }
 
-    private Object evaluateMethod(final Object[] args) throws IllegalAccessException, InvocationTargetException {
+    private Object successMethod(Object[] args) throws IllegalAccessException, InvocationTargetException {
+    	executeAnnoMethod(Success.class, args) ; 
+		return null;
+	}
+    private Object failedMethod(Object[] args) throws IllegalAccessException, InvocationTargetException {
+    	executeAnnoMethod(Failed.class, args) ; 
+    	return null;
+    }
+
+
+	private Object executeAnnoMethod(Class<? extends Annotation> T , Object[] args) throws IllegalAccessException, InvocationTargetException {
+		Method method = getAnnoMethod(T);
+		System.out.println(method.getName());
+		method.invoke(this.target, args[0]);
+		return null;
+	}
+
+	private Object evaluateMethod(final Object[] args) throws IllegalAccessException, InvocationTargetException {
         Facts facts = (Facts) args[0];
         Method conditionMethod = getConditionMethod();
         try {
@@ -289,6 +312,19 @@ public class RuleProxy implements InvocationHandler {
             }
         }
         return this.actionMethods;
+    }
+    
+    private Method  getAnnoMethod(Class<?  extends Annotation> T) {
+    	
+    	Method[] methods = this.target.getClass().getDeclaredMethods() ; 
+    	if (methods !=  null && methods.length > 0) {
+    		for (Method method : methods) {
+    			if (method.isAnnotationPresent (T)) {
+    				return method ; 
+    			}
+    		}
+    	}
+    	return null;
     }
 
     private Method getCompareToMethod() {
