@@ -171,4 +171,14 @@ public class BasicRule implements Rule {
         }
     }
 
+	@Override
+	public void success(Facts facts) throws Exception {
+		
+	}
+
+	@Override
+	public void failed(Facts facts) throws Exception {
+		
+	}
+
 }
