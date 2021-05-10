@@ -23,8 +23,10 @@
  */
 package org.jeasy.rules.core;
 
+import org.jeasy.rules.annotation.Failed;
 import org.jeasy.rules.api.Fact;
 import org.jeasy.rules.api.Facts;
+import org.jeasy.rules.api.Model;
 import org.jeasy.rules.api.Rule;
 import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.api.RulesEngine;
@@ -32,7 +34,11 @@ import org.jeasy.rules.api.RulesEngineParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.String.format;
+
+import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -67,15 +73,15 @@ public final class DefaultRulesEngine extends AbstractRulesEngine {
 	}
 
 	@Override
-	public void fire(Rules rules, Facts facts) {
+	public void fire(Rules rules, Facts facts, Model model) {
 		Objects.requireNonNull(rules, "Rules must not be null");
 		Objects.requireNonNull(facts, "Facts must not be null");
 		triggerListenersBeforeRules(rules, facts);
-		doFire(rules, facts);
+		doFire(rules, facts, model);
 		triggerListenersAfterRules(rules, facts);
 	}
 
-	void doFire(Rules rules, Facts facts) {
+	void doFire(Rules rules, Facts facts, Model model) {
 		if (rules.isEmpty()) {
 			LOGGER.warn("No rules registered! Nothing to apply");
 			return;
@@ -84,7 +90,11 @@ public final class DefaultRulesEngine extends AbstractRulesEngine {
 		log(rules);
 		log(facts);
 		LOGGER.debug("Rules evaluation started");
-		for (Rule rule : rules) {
+		boolean finished = false;
+
+		Iterator<Rule> it = rules.iterator();
+		while (it.hasNext() && !finished) {
+			Rule rule = it.next();
 			final String name = rule.getName();
 			final int priority = rule.getPriority();
 			if (priority > parameters.getPriorityThreshold()) {
@@ -134,6 +144,8 @@ public final class DefaultRulesEngine extends AbstractRulesEngine {
 
 				try {
 					rule.failed(facts);
+					if (model.equals(Model.NON_All))
+						finished = true;
 					LOGGER.debug("Rule '{}' has been evaluated to false, it has not been executed", name);
 					triggerListenersAfterEvaluate(rule, facts, false);
 					if (parameters.isSkipOnFirstNonTriggeredRule()) {
@@ -146,6 +158,19 @@ public final class DefaultRulesEngine extends AbstractRulesEngine {
 
 			}
 		}
+	}
+
+	private boolean existFailedMethod(Rule rule) {
+		if (rule instanceof RuleProxy) {
+
+			Method[] methods = ((RuleProxy) rule).getTarget().getClass().getMethods();
+			for (Method m : methods) {
+				if (m.isAnnotationPresent(Failed.class))
+					return true;
+			}
+		}
+		return false;
+
 	}
 
 	private void logEngineParameters() {

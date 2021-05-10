@@ -24,6 +24,7 @@
 package org.jeasy.rules.core;
 
 import org.jeasy.rules.api.Facts;
+import org.jeasy.rules.api.Model;
 import org.jeasy.rules.api.Rule;
 import org.jeasy.rules.api.RuleListener;
 import org.jeasy.rules.api.Rules;
@@ -72,7 +73,7 @@ public final class InferenceRulesEngine extends AbstractRulesEngine {
     }
 
     @Override
-    public void fire(Rules rules, Facts facts) {
+    public void fire(Rules rules, Facts facts , Model model) {
         Objects.requireNonNull(rules, "Rules must not be null");
         Objects.requireNonNull(facts, "Facts must not be null");
         Set<Rule> selectedRules;
@@ -80,7 +81,7 @@ public final class InferenceRulesEngine extends AbstractRulesEngine {
             LOGGER.debug("Selecting candidate rules based on the following facts: {}", facts);
             selectedRules = selectCandidates(rules, facts);
             if (!selectedRules.isEmpty()) {
-                delegate.fire(new Rules(selectedRules), facts);
+                delegate.fire(new Rules(selectedRules), facts, model);
             } else {
                 LOGGER.debug("No candidate rules found for facts: {}", facts);
             }

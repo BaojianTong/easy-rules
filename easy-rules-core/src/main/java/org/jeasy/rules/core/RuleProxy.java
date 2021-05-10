@@ -129,6 +129,7 @@ public class RuleProxy implements InvocationHandler {
 		return null;
 	}
     private Object failedMethod(Object[] args) throws IllegalAccessException, InvocationTargetException {
+    	
     	executeAnnoMethod(Failed.class, args) ; 
     	return null;
     }
@@ -136,6 +137,10 @@ public class RuleProxy implements InvocationHandler {
 
 	private Object executeAnnoMethod(Class<? extends Annotation> T , Object[] args) throws IllegalAccessException, InvocationTargetException {
 		Method method = getAnnoMethod(T);
+		if(null == method )
+			throw new IllegalArgumentException(
+					format("Rule '%s' is not annotated with '%s' method", target.getClass(), T.getClass()));
+
 		System.out.println(method.getName());
 		method.invoke(this.target, args[0]);
 		return null;

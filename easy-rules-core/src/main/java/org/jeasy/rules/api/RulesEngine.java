@@ -62,7 +62,7 @@ public interface RulesEngine {
     /**
      * Fire all registered rules on given facts.
      */
-    void fire(Rules rules, Facts facts);
+    void fire(Rules rules, Facts facts, Model runModel);
 
     /**
      * Check rules without firing them.
