@@ -2,7 +2,6 @@ package cn.ruletest.login.rule;
 
 import java.util.Map;
 
-import org.jeasy.rules.annotation.Action;
 import org.jeasy.rules.annotation.Condition;
 import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Failed;
