@@ -141,7 +141,6 @@ public class RuleProxy implements InvocationHandler {
 			throw new IllegalArgumentException(
 					format("Rule '%s' is not annotated with '%s' method", target.getClass(), T.getClass()));
 
-		System.out.println(method.getName());
 		method.invoke(this.target, args[0]);
 		return null;
 	}

@@ -20,7 +20,7 @@ public class LoginProcess {
 
 		Map<String, Boolean> result = new HashMap<String, Boolean>();
 		RulesEngine ruleEngine = new DefaultRulesEngine();
-		Rules rules = new Rules(new LoginPermissionChecking(), new PasswordChecking());
+		Rules rules = new Rules( new LoginPermissionChecking(), new PasswordChecking());
 
 		Facts facts = new Facts();
 		facts.add(new Fact("login", new User("tong", "pwd")));

@@ -141,7 +141,6 @@ public final class DefaultRulesEngine extends AbstractRulesEngine {
 					}
 				}
 			} else {
-
 				try {
 					rule.failed(facts);
 					if (model.equals(Model.NON_All))

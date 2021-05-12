@@ -16,6 +16,7 @@ public class LoginPermissionChecking {
 	
 	@Condition
 	public boolean checkLoginPermission(@Fact("login") User user) {
+		System.out.println("checkLoginPermission : " + System.currentTimeMillis());
 		return false;
 	}
 
